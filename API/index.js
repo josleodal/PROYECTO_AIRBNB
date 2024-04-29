@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const imageDownloader= require('image-downloader')
 require('dotenv').config();
 
 const app = express();
@@ -12,6 +13,7 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static(__dirname+'/uploads'))
 
 // Configuración de CORS
 app.use(cors({
@@ -107,6 +109,25 @@ app.post('/logout', (req, res)=>{
     res.cookie('token', '').json(true)
 
 })
+
+app.post('/upload-by-link' ,async(req,res)=>{
+    const { link } = req.body;
+    if (!link) {
+        return res.status(400).json({ error: 'El enlace de la imagen es necesario.' });
+    }
+    const newName = 'image' + Date.now() + '.jpg';
+    try {
+        await imageDownloader.image({
+            url: link,
+            dest: __dirname + '/uploads/' + newName,
+        });
+        res.json(newName);
+    } catch (error) {
+        console.error('Error al descargar la imagen:', error);
+        res.status(500).json({ error: 'Error al descargar la imagen.' });
+    }
+});
+
 
 app.listen(4000, () => {
     console.log('Servidor escuchando en el puerto 4000');

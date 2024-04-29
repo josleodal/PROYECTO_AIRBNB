@@ -1,0 +1,14 @@
+# Node.js dependencies
+/node_modules
+
+# Build files
+/build
+
+
+
+# Logs
+*.log
+
+# API keys and sensitive information
+/api/config.js
+/api/secrets.js

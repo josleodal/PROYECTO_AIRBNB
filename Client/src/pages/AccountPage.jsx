@@ -3,6 +3,7 @@ import { UserContext } from "../UserContext"
 import { Navigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import PlacesPages from "./PlacesPages";
 
 export default function AccountPage (){
 
@@ -72,6 +73,11 @@ return <Navigate to={redirect}/>
 
                 </div>
 
+
+            )}
+
+            {subpage==='places'&&(
+                <PlacesPages/>
 
             )}
 
