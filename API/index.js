@@ -6,6 +6,7 @@ const User = require('./models/User');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const imageDownloader= require('image-downloader')
+const multer = require('multer')
 require('dotenv').config();
 
 const app = express();
@@ -126,6 +127,13 @@ app.post('/upload-by-link' ,async(req,res)=>{
         console.error('Error al descargar la imagen:', error);
         res.status(500).json({ error: 'Error al descargar la imagen.' });
     }
+});
+
+
+const imagesMiddleware = multer({ dest: 'uploads/' });
+
+app.post('/upload', imagesMiddleware.array('images', 100), async (req,res) => {
+  res.json(req.files)
 });
 
 

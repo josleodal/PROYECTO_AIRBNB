@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import Perks from "../Perks";
 import axios from "axios";
 
+
 export default function PlacesPages() {
     const { action } = useParams();
     const [title, setTitle] = useState('');
@@ -28,6 +29,31 @@ export default function PlacesPages() {
         setImageLink('');
     }
 
+    function uploadImage(e){
+    
+        const files= e.target.files;
+        const data = new FormData();
+      
+        for(let i = 0; i<files.length; i++){
+
+            data.append('images',files[i]);
+        }
+
+        axios.post('/upload', data, {
+
+            headers:{'Content-type': 'multipart/form-data'}
+        }).then(response =>{
+
+            const{data:filename}=response;
+            setAddedImages(prev=>{
+
+                return [...prev, filename];
+    
+            })
+        })
+
+    }
+
     return (
         <div>
             {action !== 'new' && (
@@ -51,7 +77,7 @@ export default function PlacesPages() {
                         <h2 className="text-xl mt-4">Fotos</h2>
 
                         <div className="flex gap-2">
-                        <input type="text" name="imageLink" value={imageLink} onChange={e => setImageLink(e.target.value)} placeholder="Añada sus fotos en formato gpg" />
+                        <input type="text" name="imageLink" value={imageLink} onChange={e => setImageLink(e.target.value)} placeholder="Añada sus fotos en formato jpg con un link" />
                         <button onClick={addPhotosByLink} className="bg-gray-200 px-4 rounded-2xl">Añada fotos</button>
                         </div>
 
@@ -62,9 +88,11 @@ export default function PlacesPages() {
                         <img className="rounded-2xl p-2" src={'http://localhost:4000/uploads/' + link} alt="" />
                                 </div>
                             ))}
-                            <button className="p-5 text-2xl text-gray-600 border-transparent rounded-2xl">
+                        <label className="cursor-pointer p-5 text-2xl text-gray-600 border border-gray-200 rounded-lg flex justify-center items-center">
+
+                                <input type="file" multiple className="hidden" onChange={uploadImage}/>
                                 Upload
-                            </button>
+                            </label>
                         </div>
 
 
