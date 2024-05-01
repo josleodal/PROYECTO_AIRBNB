@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const imageDownloader= require('image-downloader')
 const multer = require('multer')
+const fs =require('fs')
+const Place =require('./models/Places')
 require('dotenv').config();
 
 const app = express();
@@ -133,8 +135,39 @@ app.post('/upload-by-link' ,async(req,res)=>{
 const imagesMiddleware = multer({ dest: 'uploads/' });
 
 app.post('/upload', imagesMiddleware.array('images', 100), async (req,res) => {
-  res.json(req.files)
+    const uploadFiles=[]
+    for(let i=0;i<req.files.length;i++){
+        const {path, originalname}=req.files[i];
+        const parts=originalname.split('.')
+        const ext= parts[parts.length -1]
+        const newPath= path +'.'+ext;
+        fs.renameSync(path,newPath);
+        uploadFiles.push(newPath.replace('uploads/',''))
+
+
+    }
+  res.json(uploadFiles)
 });
+
+app.post('/places', (req,res)=>{
+
+    //mongoose.connect(process.env.MONGO_URL);
+    const {token} = req.cookies;
+    const {
+      title,address,addedPhotos,description,
+      perks,extraInfo,checkIn,checkOut,maxGuests,
+    } = req.body;
+    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+      if (err) throw err;
+      const placeDoc = await Place.create({
+        owner:userData.id,
+        title,address,photos:addedPhotos,description,
+        perks,extraInfo,checkIn,checkOut,maxGuests,
+      });
+      res.json(placeDoc);
+    });
+
+})
 
 
 app.listen(4000, () => {
